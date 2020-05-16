@@ -55,8 +55,9 @@ def teacher_menu():
     print('1. Wyswietl uczniow')
     print('2. Wyswietl plan lekcji')
     print('3. Napisz wiadomosc')
-    print('4. Skrzynka odbiorcza')
-    print('5. Powrot')
+    print('4. Napisz wiadomosc do klasy')
+    print('5. Skrzynka odbiorcza')
+    print('6. Powrot')
     choice = input('Wybierz : ')
     return choice
 
@@ -111,9 +112,12 @@ def main_loop():
                     sendMessage(teacher_id)
                     hold()
                 if choice == '4':
+                    sendMessageToClass(teacher_id)
+                    hold()
+                if choice == '5':
                     mailBox(teacher_id)
                     hold()
-                elif choice == '5':
+                elif choice == '6':
                     break
         elif choice == '3':
             print('dyrek work in prog')
@@ -230,6 +234,7 @@ def sendMessage(id_ucznia):
         data.append({'id': id, 'email': email, 'name': name})
         i += 1
 
+    receiver_id = 0
     receiver_email = input('Wpisz email : ')
     for item in data:
         if item['email'] == receiver_email:
@@ -245,6 +250,47 @@ def sendMessage(id_ucznia):
     cursor.execute(sql, {'sender_id': id_ucznia, 'receiver_id': receiver_id, 'message': message})
     connection().commit()
 
+    cursor.close()
+    connection().close()
+
+
+def sendMessageToClass(id_nauczyciela):
+    cursor = connection().cursor()
+    # kwerenda do wyboru wszystkich oprocz siebie
+    sql = """
+        SELECT id_klasy"id", stopien"stopien", profil"profil"
+        FROM klasa 
+        """
+    cursor.execute(sql)
+    i = 1
+    data = []
+    for id, stopien, profil in cursor:
+        print(str(i) + '  > ' + str(stopien) + '  ' + str(profil))
+        data.append({'id': id, 'stopien': stopien, 'profil': profil})
+        i += 1
+
+    receiver_id = int(input('Wpisz nr klasy : ')) + 99
+    receiver_name = ''
+    for item in data:
+        if item['id'] == receiver_id:
+            receiver_name = item['stopien'] + ' ' + item["profil"]
+            receiver_id = item['id']
+
+    print('Wysylasz wiadomość do ' + receiver_name)
+    sql = """
+    SELECT ID_UZYTKOWNIKA"id" FROM UZYTKOWNIK
+    WHERE TYP_UZYTKOWNIKA = 'uczen' AND id_klasy = :receiver_id """
+    cursor.execute(sql, {'receiver_id': receiver_id})
+    message = input('Wprowadz tresc wiadomosci : ')
+    data = []
+    for id in cursor:
+        data.append([id_nauczyciela, id[0], message])
+    sql = """
+          INSERT INTO KORESPONDENCJA(ID_KORESPONDENCJI, ID_NADAWCY, ID_ODBIORCY, TRESC)
+          values (KORESPONDENCJA_SEQ.NEXTVAL, :sender_id, :receiver_id, :message)"""
+    cursor.executemany(sql, data)
+    connection().commit()
+    
     cursor.close()
     connection().close()
 
