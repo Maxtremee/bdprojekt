@@ -45,7 +45,6 @@ def headmaster_menu():
 
 def main_loop():
     check_pwd()
-
     while True:
         choice = person_menu()
         os.system('cls')
@@ -53,6 +52,7 @@ def main_loop():
             student_id = getStudents()
             while True:
                 os.system('cls')
+                showUserData(student_id)
                 choice = student_menu()
                 if choice == '1':
                     getStudentGrades(student_id)
@@ -72,6 +72,7 @@ def main_loop():
             teacher_id = getTeachers()
             while True:
                 os.system('cls')
+                showUserData(teacher_id)
                 choice = teacher_menu()
                 if choice == '1':
                     printTeacherStudents(teacher_id)
@@ -166,10 +167,10 @@ def getStudentGrades(id_ucznia):
         WHERE ID_UCZNIA = :id_ucznia """
     cursor.execute(sql, {'id_ucznia': id_ucznia})
     i = 0
+    print('L.p\tPrzedmiot\tOcena\tOpis')
     for subject, grade, opis in cursor:
-        print(str(i) + '  > ' + str(subject) + ' > ' + str(grade) + '    ' + opis)
+        print(str(i) + '\t' + str(subject) + '\t' + str(grade) + '\t' + opis)
         i += 1
-    print('###Koniec listy ocen###')
 
     cursor.close()
     connection().close()
@@ -190,9 +191,11 @@ def getStudentSchedule(id_ucznia):
     for subject, beg, end, name in cursor:
         data.append({'subject': subject, 'beg': beg.split(':'), 'end': end, 'name': name})
 
+    print('Przedmiot\tRozp.\tZak.\tNauczyciel')
     for item in sorted(data, key=lambda i: (int(i['beg'][0]), int(i['beg'][1]))):
-        print(str(i) + '  > ' + str(item['subject']) + ' > ' + str(item['beg'][0] + ':' + item['beg'][1]) + '   ' + str(
-            item['end']) + '   ' + str(item['name']))
+        print('>' + str(item['subject'])[0:14] + '\t' +
+              str(item['beg'][0] + ':' + str(item['beg'][1])) + '\t' +
+              str(item['end']) + '\t' + str(item['name']))
         i += 1
 
     cursor.close()
