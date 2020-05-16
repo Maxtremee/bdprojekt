@@ -7,3 +7,7 @@ Reszta instrukcji tutaj:
 ```
   https://cx-oracle.readthedocs.io/en/latest/user_guide/installation.html#quick-start-cx-oracle-installation
 ```
+Przy uruchamianiu hasło należy podać jako argument:
+```
+  python main.py "hasło"
+```
