@@ -185,6 +185,7 @@ def getStudentGrades(id_ucznia):
     for subject, grade, opis in cursor:
         print(str(i) + '  > ' + str(subject) + ' > ' + str(grade) + '    ' + opis)
         i += 1
+    print('###Koniec listy ocen###')
 
     cursor.close()
     connection().close()
@@ -258,15 +259,15 @@ def mailBox(id_receiver):
     cursor = connection().cursor()
     # kwerenda do wyboru wszystkich oprocz siebie
     sql = """
-        SELECT id_uzytkownika"id", email, imie || ' ' || nazwisko"name", tresc"message"
+        SELECT id_uzytkownika"id", email, imie || ' ' || nazwisko"name", tresc"message", czas"time"
         FROM korespondencja JOIN uzytkownik ON korespondencja.id_nadawcy = uzytkownik.id_uzytkownika
         WHERE ID_ODBIORCY = :receiver """
     cursor.execute(sql, {'receiver': id_receiver})
     i = 1
     data = []
-    for id, email, name, message in cursor:
-        print(str(i) + '  > ' + str(email) + '   >->  ' + message[:27] + '...')
-        data.append({'id': id, 'email': email, 'name': name, 'message': message})
+    for id, email, name, message, time in cursor:
+        print(str(i) + '  > ' + str(email) + ' ' + str(time) + '   >->  ' + message[:27] + '...')
+        data.append({'id': id, 'email': email, 'name': name, 'time': time, 'message': message})
         i += 1
 
     print('1. Pokaz wiadomosc ')
