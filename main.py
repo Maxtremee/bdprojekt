@@ -1,40 +1,6 @@
-import sys
-
-import cx_Oracle
-import json
-import os
-
-con = cx_Oracle  # zmienna globalna do przechowywania polaczenia
-
-
-def check_pwd():
-    try:
-        sys.argv[1]
-    except:
-        print('Brak hasła')
-        sys.exit()
-
-
-def est_con():
-    pwd = sys.argv[1]
-    global con
-    con = cx_Oracle.connect("pwr_19_20_L_018248874", pwd, "156.17.43.90", encoding="UTF-8")
-
-
-def is_connected():
-    try:
-        con.ping()
-        return True
-    except:
-        return False
-
-
-def connection():
-    if is_connected() is True:
-        return con
-    else:
-        est_con()
-        return con
+import user
+from user import *
+from connection import connection, check_pwd
 
 
 def hold():
@@ -72,6 +38,15 @@ def student_menu():
     return choice
 
 
+def headmaster_menu():
+    print('1. Wyswietl uzytkownikow')
+    print('2. Wyswietl oceny')
+    print('3. Wyswietl plan lekcji')
+    print('4. Wyswietl logi')
+    choice = input('Wybierz : ')
+    return choice
+
+
 def main_loop():
     check_pwd()
 
@@ -100,8 +75,8 @@ def main_loop():
         elif choice == '2':
             teacher_id = getTeachers()
             while True:
-                choice = teacher_menu()
                 os.system('cls')
+                choice = teacher_menu()
                 if choice == '1':
                     printTeacherStudents(teacher_id)
                     hold()
@@ -120,7 +95,14 @@ def main_loop():
                 elif choice == '6':
                     break
         elif choice == '3':
-            print('dyrek work in prog')
+            while True:
+                os.system('cls')
+                choice = headmaster_menu()
+                if choice == '1':
+                    user_id = user.getUsers()
+                    user.modifyUser(user_id)
+                    hold()
+
         elif choice == '4':
             break
 
@@ -290,7 +272,7 @@ def sendMessageToClass(id_nauczyciela):
           values (KORESPONDENCJA_SEQ.NEXTVAL, :sender_id, :receiver_id, :message)"""
     cursor.executemany(sql, data)
     connection().commit()
-    
+
     cursor.close()
     connection().close()
 
