@@ -230,16 +230,10 @@ def sendMessage(id_ucznia):
         data.append({'id': id, 'email': email, 'name': name})
         i += 1
 
-    receiver_email = input('Wpisz email odbiorcy : ')
-    if isinstance(receiver_email, str) is True:
-        for item in data:
-            if item['email'] == receiver_email:
-                receiver_id = item['id']
-    elif isinstance(receiver_email, int):
-        for item in data:
-            if item['id'] == receiver_email:
-                receiver_id = item['id']
-                receiver_email = item['email']
+    receiver_email = input('Wpisz email : ')
+    for item in data:
+        if item['email'] == receiver_email:
+            receiver_id = item['id']
 
     print('Wysylasz wiadomość do ' + receiver_email)
     message = input('Wprowadz tresc wiadomosci : ')
