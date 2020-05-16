@@ -3,11 +3,6 @@ from user import *
 from connection import connection, check_pwd
 
 
-def hold():
-    input('Wcisnij przycisk zeby kontunuowac ...')
-    os.system('cls')
-
-
 def person_menu():
     print('1. Uczen')
     print('2. Nauczyciel')
@@ -43,6 +38,7 @@ def headmaster_menu():
     print('2. Wyswietl oceny')
     print('3. Wyswietl plan lekcji')
     print('4. Wyswietl logi')
+    print('5. Powrot')
     choice = input('Wybierz : ')
     return choice
 
@@ -102,6 +98,8 @@ def main_loop():
                     user_id = user.getUsers()
                     user.modifyUser(user_id)
                     hold()
+                if choice == '5':
+                    break
 
         elif choice == '4':
             break
