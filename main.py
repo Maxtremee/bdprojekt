@@ -1,4 +1,4 @@
-import user, grades, teacher, messages, student
+import user, grades, teacher, messages, student, head
 import os
 from user import *
 from connection import connection, check_pwd
@@ -31,9 +31,10 @@ def headmaster_menu():
     print('1. Wyswietl uzytkownikow')
     print('2. Wyswietl oceny')
     print('3. Wyswietl plan lekcji')
-    print('4. Wyswietl logi')
-    print('5. Wyswietl korespondencje')
-    print('6. Powrot')
+    print('4. Wyswietl logi uzytkownikow')
+    print('5. Wyswietl logi ocen')
+    print('6. Wyswietl korespondencje')
+    print('7. Powrot')
     choice = input('Wybierz : ')
     return choice
 
@@ -78,22 +79,20 @@ def main_loop():
                 if choice == '2':
                     grades.grades_menu()
                     hold()
-                if choice == '6':
+                if choice == '3':
+                    #printSchedule()
+                    hold()
+                if choice == '4':
+                    head.printUserLogs()
+                    hold()
+                if choice == '5':
+                    head.printGradesLogs()
+                    hold()
+                if choice == '7':
                     break
 
         elif choice == '4':
             break
-
-
-
-
-
-
-
-
-
-
-
 
 
 
