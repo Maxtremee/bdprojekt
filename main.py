@@ -1,4 +1,4 @@
-import user
+import user, grades
 from user import *
 from connection import connection, check_pwd
 
@@ -38,7 +38,8 @@ def headmaster_menu():
     print('2. Wyswietl oceny')
     print('3. Wyswietl plan lekcji')
     print('4. Wyswietl logi')
-    print('5. Powrot')
+    print('5. Wyswietl korespondencje')
+    print('6. Powrot')
     choice = input('Wybierz : ')
     return choice
 
@@ -99,7 +100,10 @@ def main_loop():
                     user_id = user.getUsers()
                     user.modifyUser(user_id)
                     hold()
-                if choice == '5':
+                if choice == '2':
+                    grades.grades_menu()
+                    hold()
+                if choice == '6':
                     break
 
         elif choice == '4':
