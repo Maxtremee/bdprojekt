@@ -121,7 +121,7 @@ def setLastName(user_id):
 
 def setAge(user_id):
     print('Aktualna wartosc : ' + currentUser[0]['age'])
-    newAge = input("Wprowadz nowy wiek : ")
+    newAge = int(input("Wprowadz nowy wiek : "))
     cursor = connection().cursor()
     sql = """
         UPDATE uzytkownik
