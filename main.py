@@ -1,7 +1,11 @@
 import user, grades
+import os
 from user import *
 from connection import connection, check_pwd
 
+def hold():
+    input("Wcisnij klawisz zeby kontynuowac...")
+    os.system('cls')
 
 def person_menu():
     print('1. Uczen')
@@ -11,16 +15,62 @@ def person_menu():
     choice = input('Wybierz : ')
     return choice
 
+def teacher_grade_menu(data, teacher_id):
+    while True:
+        printGrades(data)
+        print('1. Edytuj ocene')
+        print('2. Dodaj ocene')
+        print('3. Usun ocene')
+        print('4. Powrot')
+        choice = input('Wybor')
+        if choice == '4':
+            break
+        if choice == '1':
+            index = int(input('Podaj indeks oceny do edycji: '))
+            grades.edit_grade_menu(data[index], data[index]['grade_id'])
+            hold()
+        if choice == '2':
+            addGrade(teacher_id)
+            hold()
+        if choice == '3':
+            index = int(input('Podaj indeks oceny do usunieca: '))
+            deleteGrade(data[index]['grade_id'])
+            hold()
+        else:
+            print("Niepoprawny wybor...")
 
-def teacher_menu():
-    print('1. Wyswietl uczniow')
-    print('2. Wyswietl plan lekcji')
-    print('3. Napisz wiadomosc')
-    print('4. Napisz wiadomosc do klasy')
-    print('5. Skrzynka odbiorcza')
-    print('6. Powrot')
-    choice = input('Wybierz : ')
-    return choice
+def teacher_menu(teacher_id):
+    showUserData(teacher_id)
+    while True:
+        print('1. Wyswietl uczniow')
+        print('2. Wyswietl oceny (dodaj, usun)')
+        print('3. Wyswietl plan lekcji')
+        print('4. Napisz wiadomosc')
+        print('5. Napisz wiadomosc do klasy')
+        print('6. Skrzynka odbiorcza')
+        print('7. Powrot')
+        choice = input('Wybierz : ')
+        if choice == '1':
+            students = printTeacherStudents(teacher_id)
+            hold()
+        if choice == '2':
+            data = getTeacherMadeGrades(teacher_id)
+            teacher_grade_menu(data, teacher_id)
+            hold()
+        if choice == '3':
+            printTeacherSchedule(teacher_id)
+            hold()
+        if choice == '4':
+            sendMessage(teacher_id)
+            hold()
+        if choice == '5':
+            sendMessageToClass(teacher_id)
+            hold()
+        if choice == '6':
+            mailBox(teacher_id)
+            hold()
+        elif choice == '7':
+            break
 
 
 def student_menu():
@@ -71,27 +121,8 @@ def main_loop():
                     break
         elif choice == '2':
             teacher_id = getTeachers()
-            while True:
-                os.system('cls')
-                showUserData(teacher_id)
-                choice = teacher_menu()
-                if choice == '1':
-                    printTeacherStudents(teacher_id)
-                    hold()
-                if choice == '2':
-                    printTeacherSchedule(teacher_id)
-                    hold()
-                if choice == '3':
-                    sendMessage(teacher_id)
-                    hold()
-                if choice == '4':
-                    sendMessageToClass(teacher_id)
-                    hold()
-                if choice == '5':
-                    mailBox(teacher_id)
-                    hold()
-                elif choice == '6':
-                    break
+            teacher_menu(teacher_id)
+                
         elif choice == '3':
             while True:
                 os.system('cls')
@@ -108,6 +139,104 @@ def main_loop():
 
         elif choice == '4':
             break
+
+def addGrade(teacher_id):
+    os.system('cls')
+
+    cursor = connection().cursor()
+    sql = """
+            SELECT DISTINCT
+            przedmioty.id_przedmiotu "id",
+            nazwa "name",
+            stopien "lvl"
+            FROM przedmioty
+            JOIN blok_zajeciowy ON przedmioty.id_przedmiotu = blok_zajeciowy.id_przedmiotu
+            WHERE id_nauczyciela = :teacher_id
+            """
+    cursor.execute(sql, [teacher_id])
+    for id, name, lvl in cursor:
+        print(str(id)+'\t'+str(name[:14])+'.\t'+str(lvl)+'\t')
+    subjectCode = input('Wprowadz kod przedmiotu (1 kolumna) : ')
+
+    students = printTeacherStudents(teacher_id)
+    index = int(input('Wprowadz index uzytkownika : '))
+
+    studentId = students[index]['id']
+    cursor = connection().cursor()
+    grade = int(input('Podaj ocene: '))
+    description = input('Podaj opis: ')
+
+    sql = """
+            INSERT INTO OCENY(ID_OCENY, ID_PRZEDMIOTU, ID_UCZNIA, OCENA, OPIS)
+            values (OCENY_SEQ.NEXTVAL, :subjectCode , :studentId, :grade, :description)
+            """
+    cursor.execute(sql, [subjectCode, studentId, grade, description])
+    connection().commit()
+
+
+def deleteGrade(grade_id):
+    cursor = connection().cursor()
+    sql = """
+        DELETE
+        FROM oceny
+        WHERE id_oceny = :grade_id
+    """
+    try:
+        cursor.execute(sql, [grade_id])
+        connection().commit()
+    except:
+        print('Blad usuwania')
+    finally:
+        cursor.close()
+        connection().close()
+
+
+def editGrade():
+    print('he')
+
+def getTeacherMadeGrades(teacher_id):
+    cursor = connection().cursor()
+    sql = """
+            SELECT DISTINCT
+            id_oceny "grade_id",
+            imie "firstName",
+            nazwisko "lastName",
+            ocena "grade",
+            opis "description",
+            nazwa "subjectName",
+            klasa.stopien "classCode"
+            FROM uzytkownik 
+            JOIN oceny ON oceny.id_ucznia = uzytkownik.id_uzytkownika
+            JOIN przedmioty ON przedmioty.id_przedmiotu = oceny.id_przedmiotu
+            JOIN klasa ON klasa.id_klasy = uzytkownik.id_klasy
+            JOIN blok_zajeciowy ON przedmioty.id_przedmiotu = blok_zajeciowy.id_przedmiotu
+            WHERE id_nauczyciela = :teacher_id
+            """
+    cursor.execute(sql, [teacher_id])
+    i = 0
+    data = []
+    for grade_id, firstName, lastName, grade, description, subjectName, classCode in cursor:
+        data.append({'grade_id': grade_id,
+                     'lastName': lastName,
+                     'firstName': firstName,
+                     'grade': grade,
+                     'subjectName': subjectName,
+                     'classCode': classCode,
+                     'description':description})
+
+    return data
+
+def printGrades(data):
+    i = 0
+    for grade in data:
+        print(i)
+        print("Uczen :\t\t" + grade['firstName']+' '+grade['lastName'])
+        print("Nazwa :\t\t"  + grade['subjectName'])
+        print("Ocena :\t\t" + str(grade['grade']))
+        print("Opis : \t\t" + grade['description'])
+        i+=1
+
+#powyzej do innego pliku
 
 
 def getStudents():
@@ -363,47 +492,10 @@ def printTeacherStudents(teacher_id):
         i += 1
         students.append({'id': id, 'name': name})
 
-    print('1. Pokaz oceny')
-    print('2. Powrot')
-    choice = input('Wybor : ')
-    if choice == '1':
-        index = int(input('Wybierz indeks studenta : ')) - 1
-        student_id = students[index]['id']
-
-        sql = """
-            SELECT id_oceny, nazwa, ocena, opis
-            FROM oceny JOIN przedmioty ON
-            oceny.id_przedmiotu = przedmioty.id_przedmiotu
-            WHERE ID_UCZNIA = :student_id """
-        cursor.execute(sql, {'student_id': student_id})
-        i = 1
-        grades = []
-        for id_oceny, subject, grade, opis in cursor:
-            print(str(i) + '  > ' + str(subject) + ' > ' + str(grade) + '    ' + opis)
-            grades.append({'id': id, 'subject': subject, 'grade': grade, 'opis': opis})
-            i += 1
-
-        print('1. Modyfikuj ocene')
-        print('2. Powrot')
-        choice = input('Wybor : ')
-        if choice == '2':
-            return
-        elif choice == '1':
-            grade_index = int(input('Wybierz indeks oceny')) - 1
-            new_grade = int(input('Nowa ocena : '))
-            new_description = input('Opis oceny : ')
-            grade_id = grades[grade_index]['id']
-            sql = "UPDATE oceny SET ocena = " + str(
-                new_grade) + "SET opis = " + new_description + " WHERE id_oceny = " + str(grade_id)
-            cursor.execute(sql)
-            connection().commit()
-
-    elif choice == '2':
-        return
-
     cursor.close()
     connection().close()
 
+    return students
 
 def printTeacherSchedule(teacher_id):
     cursor = connection().cursor()

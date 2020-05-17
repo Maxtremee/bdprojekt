@@ -110,7 +110,7 @@ def getGrades():
     cursor = connection().cursor()
     sql = """
             SELECT 
-            id_oceny "id",
+            id_oceny "grade_id",
             imie "firstName",
             nazwisko "lastName",
             ocena "grade",
@@ -124,8 +124,8 @@ def getGrades():
             """
     cursor.execute(sql)
     data = []
-    for id, firstName, lastName, grade, description, subjectName, classCode in cursor:
-        data.append({'id': id, 'lastName': lastName, 'firstName': firstName,
+    for grade_id, firstName, lastName, grade, description, subjectName, classCode in cursor:
+        data.append({'grade_id': grade_id, 'lastName': lastName, 'firstName': firstName,
                      'grade': grade, 'subjectName': subjectName,
                      'classCode': classCode, 'description':description})
 
@@ -133,7 +133,7 @@ def getGrades():
     for item  in data:
         print(i)
         print(data[i]['firstName'] + ' ' + data[i]['lastName'])
-        print('ID oceny:\t' + str(data[i]['id']))
+        print('ID oceny:\t' + str(data[i]['grade_id']))
         print('Ocena:\t\t' + str(data[i]['grade']))
         print('Opis:\t\t' + data[i]['description'])
         print('Nazwa :\t\t' + data[i]['subjectName'])
@@ -146,7 +146,7 @@ def getGrades():
 
 def showGradeData(grade):
     print(grade['firstName'] + ' ' + grade['lastName'])
-    print('ID oceny:\t' + str(grade['id']))
+    print('ID oceny:\t' + str(grade['grade_id']))
     print('Ocena:\t\t' + str(grade['grade']))
     print('Opis:\t\t' + grade['description'])
     print('Nazwa:\t\t' + grade['subjectName'])
