@@ -225,10 +225,50 @@ def addNewUser():
     os.system('cls')
     cursor = connection().cursor()
 
-    firstName = input('Imie : ')
-    lastName = input('Nazwisko: ')
-    userType = input('Rodzaj uzytkownika ')
-    classId = int(input('IdKlasy: '))
+    firstName = input('Imie : ').upper()
+    lastName = input('Nazwisko: ').upper()
+
+    sql =  """
+        SELECT DISTINCT
+        typ_uzytkownika"userType"
+        FROM uzytkownik
+        """
+    cursor.execute(sql)
+    for item in cursor:
+        print('>'+str(item[0]))
+    userType = input('Podaj typ uzytkownika z powyzszych mozliwych : ')
+    if userType == 'uczen':
+        sql =  """
+            SELECT DISTINCT
+            id_klasy"class_id",
+            stopien "classCode"
+            FROM klasa
+            """
+        cursor.execute(sql)
+        print('ID\tklasa')
+        for class_id, classCode in cursor:
+            print('>'+str(class_id)+'\t'+str(classCode))
+        classId = int(input('ID klasy: '))
+    elif userType =='nauczyciel':
+        sql =  """
+            SELECT DISTINCT
+            k.id_klasy"class_id",
+            stopien "classCode"
+            FROM klasa k, uzytkownik u
+            WHERE u.id_klasy = NULL
+            AND u.typ_uzytkownika ='nauczyciel'
+            """
+        cursor.execute(sql)
+        print('ID\tklasa')
+        for class_id, classCode in cursor:
+            print('>'+str(class_id)+'\t'+str(classCode))
+        print('Wybierz NULL jezeli nauczyciel nie bedzie wychowawca')
+        classId = input('ID klasy (nauczyciel zostanie wychowawca): ')
+        if classId == 'NULL':
+            classId = None
+        else:
+            classId = str(classId)
+
     age = int(input('Wiek: '))
     phoneNr = input('Numer telefonu: ')
     email = input('Email: ')

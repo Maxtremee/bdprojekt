@@ -113,7 +113,7 @@ def printSchedule():
     data = []
     for (classCode, subject_id, start, end, roomName) in cursor:
         data.append({'classCode':classCode, 'subject_id':subject_id, 'start':start.split(':'), 'end':end, 'roomName':roomName})
-
+    print('\t Sala\tKod przedmiotu\tRozpoczecie\tZakonczenie')
     for item in sorted(data, key=lambda i: (int(i['classCode'][0]), i['classCode'][1], int(i['start'][0]), int(i['start'][1]))):
         print()
         print('Klasa :\t' + str(item['classCode']))
