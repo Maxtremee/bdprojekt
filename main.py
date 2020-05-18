@@ -80,7 +80,7 @@ def main_loop():
                     grades.grades_menu()
                     hold()
                 if choice == '3':
-                    #printSchedule()
+                    head.printSchedule()
                     hold()
                 if choice == '4':
                     head.printUserLogs()

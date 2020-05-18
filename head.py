@@ -94,3 +94,30 @@ def printGradesLogs():
         print('brak zmian => ' + str(item['old_description']) if str(item['old_description']) == str(item['new_description']) else str(item['old_description']) +'->'+ str(item['new_description']))
 
         i+=1
+
+def printSchedule():
+    cursor = connection().cursor()
+    sql = """
+            SELECT DISTINCT
+            k.stopien "classCode",
+            bz.id_przedmiotu "subject_id",
+            godzina_rozpoczecia"start",
+            godzina_zakonczenia"end",
+            s.id_sali "roomName"
+            FROM klasa k JOIN plan_lekcji pl ON k.id_klasy = pl.id_klasy
+            JOIN blok_zajeciowy bz ON pl.id_bloku = bz.id_bloku
+            JOIN przedmioty p ON p.id_przedmiotu = bz.id_przedmiotu
+            JOIN sala s ON s.id_sali = bz.id_sali
+            """
+    cursor.execute(sql)
+    data = []
+    for (classCode, subject_id, start, end, roomName) in cursor:
+        data.append({'classCode':classCode, 'subject_id':subject_id, 'start':start.split(':'), 'end':end, 'roomName':roomName})
+
+    for item in sorted(data, key=lambda i: (int(i['classCode'][0]), i['classCode'][1], int(i['start'][0]), int(i['start'][1]))):
+        print()
+        print('Klasa :\t' + str(item['classCode']))
+        print('\tSala :\t\t' + str(item['roomName']))
+        print('\tId przedmiotu:\t' + str(item['subject_id']))
+        print('\tRozpoczecie:\t'+ str(item['start'][0])+':'+str(item['start'][1]))
+        print('\tZakonczenie:\t' + str(item['end']))
