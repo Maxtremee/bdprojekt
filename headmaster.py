@@ -10,12 +10,13 @@ def headmaster_menu(headmaster_id):
         print('1. Wyswietl uzytkownikow')
         print('2. Dodaj nowego uzytkownika')
         print('3. Dodaj nowa klase')
-        print('4. Wyswietl oceny')
-        print('5. Wyswietl plan lekcji')
-        print('6. Wyswietl logi uzytkownikow')
-        print('7. Wyswietl logi ocen')
-        print('8. Wyswietl korespondencje')
-        print('9. Powrot')
+        print('4. Dodaj nowa lekcje')
+        print('5. Wyswietl oceny')
+        print('6. Wyswietl plan lekcji')
+        print('7. Wyswietl logi uzytkownikow')
+        print('8. Wyswietl logi ocen')
+        print('9. Wyswietl korespondencje')
+        print('0. Powrot')
         choice = input('Wybierz : ')
         if choice == '1':
             user_id = user.getUsers()
@@ -28,21 +29,24 @@ def headmaster_menu(headmaster_id):
             addClass()
             messages.hold()
         if choice == '4':
+            addNewLesson()
+            hold()
+        if choice == '5':
             grades.grades_menu()
             messages.hold()
-        if choice == '5':
+        if choice == '6':
             printSchedule()
             messages.hold()
-        if choice == '6':
+        if choice == '7':
             printUserLogs()
             messages.hold()
-        if choice == '7':
+        if choice == '8':
             printGradesLogs()
             messages.hold()
-        if choice == '8':
+        if choice == '9':
             printMessages()
             messages.hold()
-        if choice == '9':
+        if choice == '0':
             break
 
 
@@ -274,3 +278,83 @@ def addClass():
     cursor.execute(sql, [classCode, spec])
     connection().commit()
     print('Dodano klase')
+
+def addNewLesson():
+    cursor = connection().cursor()
+    print('Mozliwe sale :')
+    sql = """
+            SELECT DISTINCT
+            id_sali "room_id",
+            nazwa "roomName"
+            FROM sala
+            """
+    cursor.execute(sql)
+    data = []
+    for room_id, roomName in cursor:
+        data.append({'room_id':room_id, 'roomName':roomName})
+    print('ID\tNazwa')
+    for item in sorted(data, key=lambda i: int(i['room_id'])):
+        print('>' + str(item['room_id']) +'\t'+ item['roomName'])
+    room_id = input('Podaj id sali : ')
+    
+
+    print('Mozliwe przedmioty :')
+    sql = """
+            SELECT DISTINCT
+            id_przedmiotu "subject_id",
+            nazwa "name"
+            FROM przedmioty
+            """
+    cursor.execute(sql)
+    data = []
+    for subject_id, name in cursor:
+        data.append({'subject_id':subject_id, 'name':name})
+    print('ID\tNazwa')
+    for item in sorted(data, key=lambda i: i['subject_id']):
+        print('>' + str(item['subject_id']) +'\t'+ item['name'])
+    room_id = input('Podaj id przedmiotu : ')
+
+
+    print('Mozliwe przedmioty :')
+    sql = """
+            SELECT DISTINCT
+            id_uzytkownika "user_id",
+            imie "name",
+            nazwisko "surname"
+            FROM uzytkownik
+            WHERE uzytkownik.typ_uzytkownika = 'nauczyciel'
+            """
+    cursor.execute(sql)
+    data = []
+    for user_id, name, surname in cursor:
+        data.append({'user_id':user_id, 'name':name, 'surname':surname})
+    print('ID\tImie i nazwisko')
+    for item in sorted(data, key=lambda i: i['surname']):
+        print('>' + str(item['user_id']) +'\t'+ item['name']+' '+item['surname'])
+    room_id = input('Podaj id nauczyciela : ')
+
+    start_hours =   ['8:00', '8:55', '9:45', '10:45', '11:40', '12:35', '13:30']
+    end_hours =     ['8:45', '9:40', '10:30', '11:30', '12:25', '13:20', '14:15']
+    print('godziny rozpoczecia \t', end='')
+    print(start_hours)
+    print('godziny zakonczenia \t', end='')
+    print(end_hours)
+    start = input('Wybierz godzine rozpoczecia : ')
+    if start not in start_hours:
+        start = input('Wybierz poprawna godzine rozpoczecia : ')
+    end = input('Wybierz godzine zakonczenia : ')
+    if end not in end_hours:
+        end = input('Wybierz poprawna godzine zakonczenia : ')
+
+    
+    date = input('Wprowadz date w formacie RR/MM/DD : ')
+
+    sql = """
+            Insert into BLOK_ZAJECIOWY(ID_BLOKU, ID_SALI, ID_PRZEDMIOTU, ID_NAUCZYCIELA,
+            GODZINA_ROZPOCZECIA, GODZINA_ZAKONCZENIA, DZIEN)
+            values (BLOK_ZAJECIOWY_SEQ.NEXTVAL, :room_id, :subject_id, :user_id, :start, :end, to_date(':date', 'RR/MM/DD'))
+            """
+    
+    cursor.execute(sql, [room_id, subject_id, user_id, start, end, date])
+    connection().commit()
+    print('Dodano lekcje')
