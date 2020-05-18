@@ -1,5 +1,7 @@
 from connection import connection
 from messages import hold
+
+
 def getStudentGrades(id_ucznia):
     cursor = connection().cursor()
     sql = """
@@ -42,6 +44,7 @@ def getStudentSchedule(id_ucznia):
 
     cursor.close()
     connection().close()
+
 
 def getStudents():
     cursor = connection().cursor()

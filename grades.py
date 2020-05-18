@@ -8,6 +8,7 @@ def hold():
     input('Wcisnij przycisk zeby kontunuowac ...')
     os.system('cls')
 
+
 def edit_grade_menu(data, grade_id):
     while True:
         os.system('cls')
@@ -24,11 +25,13 @@ def edit_grade_menu(data, grade_id):
             hold()
         if choice == '3':
             break
-        else:
-            print('Niepoprawny wybor')
+
+
 def grades_menu():
     data = getGrades()
     while True:
+        for grade in data:
+            showGradeData(grade)
         print('1. Edytuj ocene')
         print('2. Usun ocene')
         print('3. Dodaj ocene')
@@ -38,16 +41,17 @@ def grades_menu():
             break
         if choice == '1':
             index = int(input('Wybierz indeks oceny: '))
-            edit_grade_menu(data[index], data[index]['id'])
+            edit_grade_menu(data[index], data[index]['grade_id'])
         if choice == '2':
             index = int(input('Wybierz indeks oceny: '))
-            deleteGrade(data[index]['id'])
+            deleteGrade(data[index]['grade_id'])
             hold()
         if choice == '3':
             addGrade()
             hold()
         else:
             print('Nieporawny wybor')
+
 
 def deleteGrade(grade_id):
     cursor = connection().cursor()
@@ -64,6 +68,8 @@ def deleteGrade(grade_id):
     finally:
         cursor.close()
         connection().close()
+
+
 def addGrade():
     os.system('cls')
 
@@ -77,7 +83,7 @@ def addGrade():
             """
     cursor.execute(sql)
     for id, name, lvl in cursor:
-        print(str(id)+'\t'+str(name[:14])+'.\t'+str(lvl)+'\t')
+        print(str(id) + '\t' + str(name[:14]) + '.\t' + str(lvl) + '\t')
     subjectCode = input('Wprowadz kod przedmiotu (1 kolumna) : ')
 
     sql = """
@@ -91,10 +97,10 @@ def addGrade():
             """
     cursor.execute(sql)
     for id, firstName, lastName, code in cursor:
-        name = firstName+' '+lastName
+        name = firstName + ' ' + lastName
         if len(name) > 15:
-            name = firstName+lastName[3]+'.'
-        print(str(id)+'\t'+name+'\t'+str(code)+'\t')
+            name = firstName + lastName[3] + '.'
+        print(str(id) + '\t' + name + '\t' + str(code) + '\t')
     userId = int(input('Wprowadz id uzytkownika z powyzszych mozliwych : '))
     grade = int(input('Podaj ocene: '))
     description = input('Podaj opis: ')
@@ -105,6 +111,7 @@ def addGrade():
             """
     cursor.execute(sql, [subjectCode, userId, grade, description])
     connection().commit()
+
 
 def getGrades():
     cursor = connection().cursor()
@@ -127,19 +134,18 @@ def getGrades():
     for grade_id, firstName, lastName, grade, description, subjectName, classCode in cursor:
         data.append({'grade_id': grade_id, 'lastName': lastName, 'firstName': firstName,
                      'grade': grade, 'subjectName': subjectName,
-                     'classCode': classCode, 'description':description})
+                     'classCode': classCode, 'description': description})
 
-    i=0
-    for item  in data:
+    i = 0
+    for item in data:
         print(i)
         print(data[i]['firstName'] + ' ' + data[i]['lastName'])
         print('ID oceny:\t' + str(data[i]['grade_id']))
         print('Ocena:\t\t' + str(data[i]['grade']))
         print('Opis:\t\t' + data[i]['description'])
         print('Nazwa :\t\t' + data[i]['subjectName'])
-        print('Klasa :\t\t' + data[i]['classCode'])    
-        i+=1
-    
+        print('Klasa :\t\t' + data[i]['classCode'])
+        i += 1
 
     return data
 
@@ -170,6 +176,7 @@ def setGrade(grade_id):
         cursor.close()
         connection().close()
 
+
 def setDescription(grade_id):
     newDescription = input("Wprowadz nowy opis : ")
     cursor = connection().cursor()
@@ -186,4 +193,3 @@ def setDescription(grade_id):
     finally:
         cursor.close()
         connection().close()
-

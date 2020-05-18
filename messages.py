@@ -1,8 +1,12 @@
 import os
 from connection import connection
+
+
 def hold():
     input("Wcisnij przycisk zeby kontynuowac")
     os.system('cls')
+
+
 def sendMessage(id_ucznia):
     cursor = connection().cursor()
     # kwerenda do wyboru wszystkich oprocz siebie
@@ -124,4 +128,3 @@ def mailBox(id_receiver):
 
     cursor.close()
     connection().close()
-

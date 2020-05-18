@@ -12,13 +12,13 @@ def check_pwd():
         sys.exit()
 
 
-def est_con():
+def _est_con():
     pwd = sys.argv[1]
     global con
     con = cx_Oracle.connect("pwr_19_20_L_018248874", pwd, "156.17.43.90", encoding="UTF-8")
 
 
-def is_connected():
+def _is_connected():
     try:
         con.ping()
         return True
@@ -27,8 +27,8 @@ def is_connected():
 
 
 def connection():
-    if is_connected() is True:
+    if _is_connected() is True:
         return con
     else:
-        est_con()
+        _est_con()
         return con

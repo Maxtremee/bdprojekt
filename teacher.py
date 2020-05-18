@@ -1,5 +1,44 @@
+import grades
+import messages
+import os
+import user
 from connection import connection
-import grades, user, messages, student, os
+
+
+def teacher_menu(teacher_id):
+    user.showUserData(teacher_id)
+    while True:
+        print('1. Wyswietl uczniow')
+        print('2. Wyswietl oceny (dodaj, usun)')
+        print('3. Wyswietl plan lekcji')
+        print('4. Napisz wiadomosc')
+        print('5. Napisz wiadomosc do klasy')
+        print('6. Skrzynka odbiorcza')
+        print('7. Powrot')
+        choice = input('Wybierz : ')
+        if choice == '1':
+            printTeacherStudents(teacher_id)
+            messages.hold()
+        if choice == '2':
+            data = getTeacherMadeGrades(teacher_id)
+            teacher_grade_menu(data, teacher_id)
+            messages.hold()
+        if choice == '3':
+            printTeacherSchedule(teacher_id)
+            messages.hold()
+        if choice == '4':
+            messages.sendMessage(teacher_id)
+            messages.hold()
+        if choice == '5':
+            messages.sendMessageToClass(teacher_id)
+            messages.hold()
+        if choice == '6':
+            messages.mailBox(teacher_id)
+            messages.hold()
+        elif choice == '7':
+            break
+
+
 def teacher_grade_menu(data, teacher_id):
     while True:
         printGrades(data)
@@ -24,38 +63,6 @@ def teacher_grade_menu(data, teacher_id):
         else:
             print("Niepoprawny wybor...")
 
-def teacher_menu(teacher_id):
-    user.showUserData(teacher_id)
-    while True:
-        print('1. Wyswietl uczniow')
-        print('2. Wyswietl oceny (dodaj, usun)')
-        print('3. Wyswietl plan lekcji')
-        print('4. Napisz wiadomosc')
-        print('5. Napisz wiadomosc do klasy')
-        print('6. Skrzynka odbiorcza')
-        print('7. Powrot')
-        choice = input('Wybierz : ')
-        if choice == '1':
-            students = printTeacherStudents(teacher_id)
-            messages.hold()
-        if choice == '2':
-            data = getTeacherMadeGrades(teacher_id)
-            teacher_grade_menu(data, teacher_id)
-            messages.hold()
-        if choice == '3':
-            printTeacherSchedule(teacher_id)
-            messages.hold()
-        if choice == '4':
-            messages.sendMessage(teacher_id)
-            messages.hold()
-        if choice == '5':
-            messages.sendMessageToClass(teacher_id)
-            messages.hold()
-        if choice == '6':
-            messages.mailBox(teacher_id)
-            messages.hold()
-        elif choice == '7':
-            break
 
 def addGrade(teacher_id):
     os.system('cls')
@@ -72,7 +79,7 @@ def addGrade(teacher_id):
             """
     cursor.execute(sql, [teacher_id])
     for id, name, lvl in cursor:
-        print(str(id)+'\t'+str(name[:14])+'.\t'+str(lvl)+'\t')
+        print(str(id) + '\t' + str(name[:14]) + '.\t' + str(lvl) + '\t')
     subjectCode = input('Wprowadz kod przedmiotu (1 kolumna) : ')
 
     students = printTeacherStudents(teacher_id)
@@ -107,6 +114,7 @@ def deleteGrade(grade_id):
         cursor.close()
         connection().close()
 
+
 def getTeacherMadeGrades(teacher_id):
     cursor = connection().cursor()
     sql = """
@@ -135,19 +143,21 @@ def getTeacherMadeGrades(teacher_id):
                      'grade': grade,
                      'subjectName': subjectName,
                      'classCode': classCode,
-                     'description':description})
+                     'description': description})
 
     return data
+
 
 def printGrades(data):
     i = 0
     for grade in data:
         print(i)
-        print("Uczen :\t\t" + grade['firstName']+' '+grade['lastName'])
-        print("Nazwa :\t\t"  + grade['subjectName'])
+        print("Uczen :\t\t" + grade['firstName'] + ' ' + grade['lastName'])
+        print("Nazwa :\t\t" + grade['subjectName'])
         print("Ocena :\t\t" + str(grade['grade']))
         print("Opis : \t\t" + grade['description'])
-        i+=1
+        i += 1
+
 
 def getTeachers():
     cursor = connection().cursor()
@@ -174,6 +184,7 @@ def getTeachers():
     cursor.close()
     connection().close()
     return teacher['id']
+
 
 def printTeacherStudents(teacher_id):
     cursor = connection().cursor()
@@ -215,6 +226,7 @@ def printTeacherStudents(teacher_id):
     connection().close()
 
     return students
+
 
 def printTeacherSchedule(teacher_id):
     cursor = connection().cursor()
