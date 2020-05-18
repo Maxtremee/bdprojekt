@@ -145,3 +145,42 @@ def printMessages():
         print('Odbiorca:\t' + str(item['name2']))
         print('Tresc:\t\t'+ item['message'])
         print('Data:\t\t' + str(item['time']))
+
+def addClass():
+    cursor = connection().cursor()
+    print('Istniejace kody klas')
+    sql = """
+            SELECT DISTINCT
+            stopien "classCode"
+            FROM klasa
+            """
+    cursor.execute(sql)
+    data = []
+    for classCode in cursor:
+        data.append({'classCode':classCode[0]})
+    for item in sorted(data, key=lambda i: (int(i['classCode'][0]), i['classCode'][1])):
+        print('>'+str(item['classCode']))
+    classCode = input('Podaj rozniacy sie kod klasy : ')
+    if classCode in cursor:
+        classCode = input('Podaj rozniacy sie kod klasy : ')
+    print('Istniejace profile klas : ')
+
+    print('Istniejace kody klas')
+    sql = """
+            SELECT DISTINCT
+            profil "spec"
+            FROM klasa
+            """
+    cursor.execute(sql)
+    for item in cursor:
+        print('>'+str(item[0]))
+    spec = input('Podaj profil klasy : ')
+
+    sql =  """
+            Insert into KLASA(ID_KLASY, STOPIEN, PROFIL)
+            values (KLASA_SEQ.NEXTVAL, :classCode, :spec)
+            """
+
+    cursor.execute(sql, [classCode, spec])
+    connection().commit()
+    print('Dodano klase')

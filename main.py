@@ -30,12 +30,13 @@ def student_menu():
 def headmaster_menu():
     print('1. Wyswietl uzytkownikow')
     print('2. Dodaj nowego uzytkownika')
-    print('3. Wyswietl oceny')
-    print('4. Wyswietl plan lekcji')
-    print('5. Wyswietl logi uzytkownikow')
-    print('6. Wyswietl logi ocen')
-    print('7. Wyswietl korespondencje')
-    print('8. Powrot')
+    print('3. Dodaj nowa klase')
+    print('4. Wyswietl oceny')
+    print('5. Wyswietl plan lekcji')
+    print('6. Wyswietl logi uzytkownikow')
+    print('7. Wyswietl logi ocen')
+    print('8. Wyswietl korespondencje')
+    print('9. Powrot')
     choice = input('Wybierz : ')
     return choice
 
@@ -78,24 +79,27 @@ def main_loop():
                     user.modifyUser(user_id)
                     hold()
                 if choice == '2':
-                    addNewUser()
+                    user.addNewUser()
                     hold()
                 if choice == '3':
-                    grades.grades_menu()
+                    head.addClass()
                     hold()
                 if choice == '4':
-                    head.printSchedule()
+                    grades.grades_menu()
                     hold()
                 if choice == '5':
-                    head.printUserLogs()
+                    head.printSchedule()
                     hold()
                 if choice == '6':
-                    head.printGradesLogs()
+                    head.printUserLogs()
                     hold()
                 if choice == '7':
-                    head.printMessages()
+                    head.printGradesLogs()
                     hold()
                 if choice == '8':
+                    head.printMessages()
+                    hold()
+                if choice == '9':
                     break
 
         elif choice == '4':
