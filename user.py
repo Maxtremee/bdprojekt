@@ -220,3 +220,24 @@ def modifyUser(user_id):
             hold()
         if choice == '7':
             break
+
+def addNewUser():
+    os.system('cls')
+    cursor = connection().cursor()
+
+    firstName = input('Imie : ')
+    lastName = input('Nazwisko: ')
+    userType = input('Rodzaj uzytkownika ')
+    classId = int(input('IdKlasy: '))
+    age = int(input('Wiek: '))
+    phoneNr = input('Numer telefonu: ')
+    email = input('Email: ')
+   
+    sql =  """
+            Insert into UZYTKOWNIK(ID_UZYTKOWNIKA, ID_KLASY, TYP_UZYTKOWNIKA, IMIE, NAZWISKO, WIEK, NUMER_TELEFONU, EMAIL)
+            values (UZYTKOWNIK_SEQ.NEXTVAL, :classId, :userType, :firstName, :lastName, :age, :phoneNr, :email)
+            """
+
+    cursor.execute(sql, [ classId, userType, firstName, lastName, age, phoneNr, email])
+    connection().commit()
+    print('Dodano uzytkownika')
