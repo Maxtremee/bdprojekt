@@ -1,4 +1,6 @@
 import os
+import re
+
 from connection import connection
 
 currentUser = None
@@ -83,7 +85,14 @@ def showUserData(user_id):
 
 def setFirstName(user_id):
     print('Aktualna wartosc : ' + currentUser[0]['firstName'])
-    newFirstName = input("Wprowadz nowe imie : ")
+    condition = True
+    while condition:
+        firstName = input('Imie : ').upper()
+        if re.fullmatch(r"[A-Z]{1,50}", firstName) is not None:
+            condition = False
+        else:
+            print('Imię musi sie skladac z maksymalnie z 50 liter')
+
     cursor = connection().cursor()
     sql = """
         UPDATE uzytkownik
@@ -91,7 +100,7 @@ def setFirstName(user_id):
         WHERE id_uzytkownika = :user_id
     """
     try:
-        cursor.execute(sql, [newFirstName, user_id])
+        cursor.execute(sql, [firstName, user_id])
         connection().commit()
     except:
         print('Blad zmieniania wartosci')
@@ -102,7 +111,14 @@ def setFirstName(user_id):
 
 def setLastName(user_id):
     print('Aktualna wartosc : ' + currentUser[0]['lastName'])
-    newLastName = input("Wprowadz nowe nazwisko : ")
+    condition = True
+    while condition:
+        lastName = input('Nazwisko: ').upper()
+        if re.fullmatch(r"[A-Z]{1,50}", lastName) is not None:
+            condition = False
+        else:
+            print('Nazwisko musi sie skladac z maksymalnie z 50 liter')
+
     cursor = connection().cursor()
     sql = """
         UPDATE uzytkownik
@@ -110,7 +126,7 @@ def setLastName(user_id):
         WHERE id_uzytkownika = :user_id
     """
     try:
-        cursor.execute(sql, [newLastName, user_id])
+        cursor.execute(sql, [lastName, user_id])
         connection().commit()
     except:
         print('Blad zmieniania wartosci')
@@ -121,7 +137,19 @@ def setLastName(user_id):
 
 def setAge(user_id):
     print('Aktualna wartosc : ' + currentUser[0]['age'])
-    newAge = int(input("Wprowadz nowy wiek : "))
+    condition = True
+    while condition:
+        age = input('Wiek: ')
+        if re.fullmatch(r"\d{1,3}") is not None:
+            pass
+        else:
+            print('Wiek musi być liczbą 3 cyfrową')
+        try:
+            age = int(age)
+            condition = False
+        except ValueError:
+            print('Wiek musi być liczbą')
+
     cursor = connection().cursor()
     sql = """
         UPDATE uzytkownik
@@ -129,7 +157,7 @@ def setAge(user_id):
         WHERE id_uzytkownika = :user_id
     """
     try:
-        cursor.execute(sql, [newAge, user_id])
+        cursor.execute(sql, [age, user_id])
         connection().commit()
     except:
         print('Blad zmieniania wartosci')
@@ -159,7 +187,14 @@ def setClassID(user_id):
 
 def setPhoneNumber(user_id):
     print('Aktualna wartosc : ' + currentUser[0]['number'])
-    newNumber = input("Wprowadz nowy numer telefonu : ")
+    condition = True
+    while condition:
+        phoneNr = input('Numer telefonu: ')
+        if re.fullmatch(r"\d{9,13}", phoneNr) is not None:
+            condition = False
+        else:
+            print('Numer telefonu musi być liczbą')
+
     cursor = connection().cursor()
     sql = """
         UPDATE uzytkownik
@@ -167,7 +202,7 @@ def setPhoneNumber(user_id):
         WHERE id_uzytkownika = :user_id
     """
     try:
-        cursor.execute(sql, [newNumber, user_id])
+        cursor.execute(sql, [phoneNr, user_id])
         connection().commit()
     except:
         print('Blad zmieniania wartosci')
@@ -178,7 +213,14 @@ def setPhoneNumber(user_id):
 
 def setEmail(user_id):
     print('Aktualna wartosc : ' + currentUser[0]['email'])
-    newEmail = input("Wprowadz nowy adres email : ")
+    condition = True
+    while condition:
+        email = input('Email: ')
+        if re.fullmatch(r"[^@]+@[^@]+\.[^@]+", email) is not None:
+            condition = False
+        else:
+            print('Wprowadz poprawny adres email')
+
     cursor = connection().cursor()
     sql = """
         UPDATE uzytkownik
@@ -186,7 +228,7 @@ def setEmail(user_id):
         WHERE id_uzytkownika = :user_id
     """
     try:
-        cursor.execute(sql, [newEmail, user_id])
+        cursor.execute(sql, [email, user_id])
         connection().commit()
     except:
         print('Blad zmieniania wartosci')
@@ -221,24 +263,38 @@ def modifyUser(user_id):
         if choice == '7':
             break
 
+
 def addNewUser():
     os.system('cls')
     cursor = connection().cursor()
 
-    firstName = input('Imie : ').upper()
-    lastName = input('Nazwisko: ').upper()
+    condition = True
+    while condition:
+        firstName = input('Imie : ').upper()
+        if re.fullmatch(r"[A-Z]{1,50}", firstName) is not None:
+            condition = False
+        else:
+            print('Imię musi sie skladac z maksymalnie z 50 liter')
 
-    sql =  """
+    condition = True
+    while condition:
+        lastName = input('Nazwisko: ').upper()
+        if re.fullmatch(r"[A-Z]{1,50}", lastName) is not None:
+            condition = False
+        else:
+            print('Nazwisko musi sie skladac z maksymalnie z 50 liter')
+
+    sql = """
         SELECT DISTINCT
         typ_uzytkownika"userType"
         FROM uzytkownik
         """
     cursor.execute(sql)
     for item in cursor:
-        print('>'+str(item[0]))
+        print('>' + str(item[0]))
     userType = input('Podaj typ uzytkownika z powyzszych mozliwych : ')
     if userType == 'uczen':
-        sql =  """
+        sql = """
             SELECT DISTINCT
             id_klasy"class_id",
             stopien "classCode"
@@ -247,21 +303,21 @@ def addNewUser():
         cursor.execute(sql)
         print('ID\tklasa')
         for class_id, classCode in cursor:
-            print('>'+str(class_id)+'\t'+str(classCode))
+            print('>' + str(class_id) + '\t' + str(classCode))
         classId = int(input('ID klasy: '))
-    elif userType =='nauczyciel':
-        sql =  """
+    elif userType == 'nauczyciel':
+        sql = """
             SELECT DISTINCT
             k.id_klasy"class_id",
             stopien "classCode"
             FROM klasa k, uzytkownik u
-            WHERE u.id_klasy = NULL
+            WHERE u.id_klasy IS NULL
             AND u.typ_uzytkownika ='nauczyciel'
             """
         cursor.execute(sql)
         print('ID\tklasa')
         for class_id, classCode in cursor:
-            print('>'+str(class_id)+'\t'+str(classCode))
+            print('>' + str(class_id) + '\t' + str(classCode))
         print('Wybierz NULL jezeli nauczyciel nie bedzie wychowawca')
         classId = input('ID klasy (nauczyciel zostanie wychowawca): ')
         if classId == 'NULL':
@@ -269,15 +325,40 @@ def addNewUser():
         else:
             classId = str(classId)
 
-    age = int(input('Wiek: '))
-    phoneNr = input('Numer telefonu: ')
-    email = input('Email: ')
-   
-    sql =  """
+    condition = True
+    while condition:
+        age = input('Wiek: ')
+        if re.fullmatch(r"\d{1,3}") is not None:
+            pass
+        else:
+            print('Wiek musi być liczbą 3 cyfrową')
+        try:
+            age = int(age)
+            condition = False
+        except ValueError:
+            print('Wiek musi być liczbą')
+
+    condition = True
+    while condition:
+        phoneNr = input('Numer telefonu: ')
+        if re.fullmatch(r"\d{9,13}", phoneNr) is not None:
+            condition = False
+        else:
+            print('Numer telefonu musi być liczbą')
+
+    condition = True
+    while condition:
+        email = input('Email: ')
+        if re.fullmatch(r"[^@]+@[^@]+\.[^@]+", email) is not None:
+            condition = False
+        else:
+            print('Wprowadz poprawny adres email')
+
+    sql = """
             Insert into UZYTKOWNIK(ID_UZYTKOWNIKA, ID_KLASY, TYP_UZYTKOWNIKA, IMIE, NAZWISKO, WIEK, NUMER_TELEFONU, EMAIL)
             values (UZYTKOWNIK_SEQ.NEXTVAL, :classId, :userType, :firstName, :lastName, :age, :phoneNr, :email)
             """
 
-    cursor.execute(sql, [ classId, userType, firstName, lastName, age, phoneNr, email])
+    cursor.execute(sql, [classId, userType, firstName, lastName, age, phoneNr, email])
     connection().commit()
     print('Dodano uzytkownika')

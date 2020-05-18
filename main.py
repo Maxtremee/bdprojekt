@@ -1,4 +1,4 @@
-import head
+import headmaster
 import messages
 import student
 import teacher
@@ -60,8 +60,8 @@ def main_loop():
             teacher.teacher_menu(teacher_id)
 
         elif choice == '3':
-            headmaster_id = head.getHeadMasters()
-            head.headmaster_menu(headmaster_id)
+            headmaster_id = headmaster.getHeadMasters()
+            headmaster.headmaster_menu(headmaster_id)
 
         elif choice == '4':
             break
