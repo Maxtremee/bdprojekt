@@ -121,3 +121,27 @@ def printSchedule():
         print('\tId przedmiotu:\t' + str(item['subject_id']))
         print('\tRozpoczecie:\t'+ str(item['start'][0])+':'+str(item['start'][1]))
         print('\tZakonczenie:\t' + str(item['end']))
+
+def printMessages():
+    cursor = connection().cursor()
+    sql = """
+            SELECT DISTINCT
+            u1.imie || ' ' || u1.nazwisko"name1",
+            u2.imie || ' ' || u1.nazwisko"name2",
+            k.tresc  "message",
+            k.czas "time"
+            FROM korespondencja k
+            JOIN uzytkownik u1 ON u1.id_uzytkownika = k.id_nadawcy
+            JOIN uzytkownik u2 ON u2.id_uzytkownika = k.id_odbiorcy
+            """
+    cursor.execute(sql)
+    data = []
+    for (name1, name2, message, time) in cursor:
+        data.append({'name1':name1, 'name2':name2, 'message':message, 'time':time})
+
+    for item in data:
+        print()
+        print('Nadawca:\t' + str(item['name1']))
+        print('Odbiorca:\t' + str(item['name2']))
+        print('Tresc:\t\t'+ item['message'])
+        print('Data:\t\t' + str(item['time']))

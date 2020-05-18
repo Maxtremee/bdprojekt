@@ -88,6 +88,9 @@ def main_loop():
                 if choice == '5':
                     head.printGradesLogs()
                     hold()
+                if choice == '6':
+                    head.printMessages()
+                    hold()
                 if choice == '7':
                     break
 
