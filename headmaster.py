@@ -11,45 +11,69 @@ def headmaster_menu(headmaster_id):
         os.system('cls')
         user.showUserData(headmaster_id)
         print('1. Uzytkownicy')
-        print('3. Dodaj nowa klase')
-        print('4. Dodaj nowa lekcje')
-        print('5. Dodaj lekcje klasie')
-        print('6. Wyswietl oceny')
-        print('7. Wyswietl plan lekcji')
-        print('8. Wyswietl logi uzytkownikow')
-        print('9. Wyswietl logi ocen')
-        print('10. Wyswietl korespondencje')
+        print('2. Klasy i lekcje')
+        print('3. Oceny')
+        print('4. Wyswietl plan lekcji')
+        print('5. Wyswietl logi uzytkownikow')
+        print('6. Wyswietl logi ocen')
+        print('7. Wyswietl korespondencje')
         print('0. Powrot')
         choice = input('Wybierz : ')
         if choice == '1':
             user.user_action_menu()
             messages.hold()
+        if choice == '2':
+            class_menu()
+            messages.hold()
         if choice == '3':
-            addClass()
-            messages.hold()
-        if choice == '4':
-            addNewLesson()
-            messages.hold()
-        if choice == '5':
-            assignLessonToClass()
-            messages.hold()
-        if choice == '6':
             grades.grades_menu()
             messages.hold()
-        if choice == '7':
+        if choice == '4':
             printSchedule()
             messages.hold()
-        if choice == '8':
+        if choice == '5':
             printUserLogs()
             messages.hold()
-        if choice == '9':
+        if choice == '6':
             printGradesLogs()
             messages.hold()
-        if choice == '10':
+        if choice == '7':
             printMessages()
             messages.hold()
         if choice == '0':
             break
+
+
+def class_menu():
+    os.system('cls')
+    print('1. Wyswietl plan lekcji')
+    print('2. Dodaj nowa klase')
+    print('3. Usun klase')
+    print('4. Dodaj nowa lekcje')
+    print('5. Dodaj lekcje klasie')
+    print('6. Usun lekcje')
+    print('0. Powrot')
+    choice = input('Wybierz : ')
+    if choice == '1':
+        printSchedule()
+        messages.hold()
+    if choice == '2':
+        addClass()
+        messages.hold()
+    if choice == '3':
+        removeClass()
+        messages.hold()
+    if choice == '4':
+        addNewLesson()
+        messages.hold()
+    if choice == '5':
+        assignLessonToClass()
+        messages.hold()
+    if choice == '6':
+        removeLesson()
+        messages.hold()
+    if choice == '0':
+        pass
 
 
 def getHeadMasters():
@@ -282,6 +306,66 @@ def addClass():
     connection().commit()
     print('Dodano klase')
 
+
+def removeClass():
+    os.system('cls')
+    cursor = connection().cursor()
+    sql = """
+    SELECT ID_KLASY "id", STOPIEN || ' ' || PROFIL "klasy"
+    FROM KLASA
+    ORDER BY ID_KLASY
+    """
+    cursor.execute(sql)
+
+    i = 0
+    data = []
+    for id, klasy in cursor:
+        print(str(i) + ' ' + str(klasy))
+        data.append({'id': id})
+        i += 1
+
+    try:
+        choice = int(input('Wpisz id klasy : '))
+    except:
+        print('Wpisano bledny nr klasy')
+
+    sql = """
+    DELETE FROM PLAN_LEKCJI
+    WHERE ID_KLASY = :KLASA
+    """
+    try:
+        cursor.execute(sql, [data[choice]['id']])
+    except:
+        pass
+
+    sql = """
+    UPDATE UZYTKOWNIK
+    SET ID_KLASY = NULL
+    WHERE ID_KLASY = :klasa
+    """
+    try:
+        cursor.execute(sql, [data[choice]['id']])
+    except:
+        pass
+
+    sql = """
+    DELETE FROM KLASA
+    WHERE ID_KLASY = :klasa
+    """
+    try:
+        cursor.execute(sql, [data[choice]['id']])
+    except:
+        pass
+
+    connection().commit()
+    cursor.close()
+
+
+def removeLesson():
+    # TODO: add function
+    pass
+
+
 def addNewLesson():
     cursor = connection().cursor()
     print('Mozliwe sale :')
@@ -294,12 +378,11 @@ def addNewLesson():
     cursor.execute(sql)
     data = []
     for room_id, roomName in cursor:
-        data.append({'room_id':room_id, 'roomName':roomName})
+        data.append({'room_id': room_id, 'roomName': roomName})
     print('ID\tNazwa')
     for item in sorted(data, key=lambda i: int(i['room_id'])):
-        print('>' + str(item['room_id']) +'\t'+ item['roomName'])
+        print('>' + str(item['room_id']) + '\t' + item['roomName'])
     room_id = int(input('Podaj id sali : '))
-    
 
     print('Mozliwe przedmioty :')
     sql = """
@@ -311,12 +394,11 @@ def addNewLesson():
     cursor.execute(sql)
     data = []
     for subject_id, name in cursor:
-        data.append({'subject_id':subject_id, 'name':name})
+        data.append({'subject_id': subject_id, 'name': name})
     print('ID\tNazwa')
     for item in sorted(data, key=lambda i: i['subject_id']):
-        print('>' + str(item['subject_id']) +'\t'+ item['name'])
+        print('>' + str(item['subject_id']) + '\t' + item['name'])
     subject_id = input('Podaj id przedmiotu : ')
-
 
     print('Mozliwe przedmioty :')
     sql = """
@@ -330,14 +412,14 @@ def addNewLesson():
     cursor.execute(sql)
     data = []
     for user_id, name, surname in cursor:
-        data.append({'user_id':user_id, 'name':name, 'surname':surname})
+        data.append({'user_id': user_id, 'name': name, 'surname': surname})
     print('ID\tImie i nazwisko')
     for item in sorted(data, key=lambda i: i['surname']):
-        print('>' + str(item['user_id']) +'\t'+ item['name']+' '+item['surname'])
+        print('>' + str(item['user_id']) + '\t' + item['name'] + ' ' + item['surname'])
     teacher_id = int(input('Podaj id nauczyciela : '))
 
-    start_hours =   ['8:00', '8:55', '9:45', '10:45', '11:40', '12:35', '13:30']
-    end_hours =     ['8:45', '9:40', '10:30', '11:30', '12:25', '13:20', '14:15']
+    start_hours = ['8:00', '8:55', '9:45', '10:45', '11:40', '12:35', '13:30']
+    end_hours = ['8:45', '9:40', '10:30', '11:30', '12:25', '13:20', '14:15']
     print('godziny rozpoczecia \t', end='')
     print(start_hours)
     print('godziny zakonczenia \t', end='')
@@ -359,12 +441,11 @@ def addNewLesson():
             GODZINA_ROZPOCZECIA, GODZINA_ZAKONCZENIA, DZIEN)
             values (BLOK_ZAJECIOWY_SEQ.NEXTVAL, :room_id, :subject_id, :teacher_id, :start_hour, :end_hour, :day)
             """
-    
-
 
     cursor.execute(sql, [room_id, subject_id, teacher_id, start_hour, end_hour, day])
     connection().commit()
     print('Dodano lekcje')
+
 
 def assignLessonToClass():
     cursor = connection().cursor()
@@ -379,13 +460,11 @@ def assignLessonToClass():
     cursor.execute(sql)
     data = []
     for class_id, classCode, spec in cursor:
-        data.append({'class_id':class_id, 'classCode':classCode, 'spec':spec})
+        data.append({'class_id': class_id, 'classCode': classCode, 'spec': spec})
     print('ID\tKlasa\tProfil')
     for item in sorted(data, key=lambda i: (int(i['classCode'][0]), i['classCode'][1])):
-        print('>' + str(item['class_id']) +'\t'+ item['classCode']+'\t'+item['spec'])
+        print('>' + str(item['class_id']) + '\t' + item['classCode'] + '\t' + item['spec'])
     class_id = int(input('Podaj id klasy : '))
-    
-
 
     print('Mozliwe lekcje do przypisania :')
     sql = """
@@ -401,29 +480,26 @@ def assignLessonToClass():
             JOIN plan_lekcji pl ON pl.id_bloku = bz.id_bloku
             WHERE id_klasy != :class_id
             """
-    cursor.execute(sql,[class_id])
+    cursor.execute(sql, [class_id])
     data = []
     for lesson_id, room_id, subject_id, teacher_id, start_hour, end_hour, day in cursor:
-        data.append({'lesson_id':lesson_id,
-                     'room_id':room_id,
-                     'subject_id':subject_id,
-                     'teacher_id':teacher_id,
-                     'start_hour':start_hour,
-                     'end_hour':end_hour,
-                     'day':day})
+        data.append({'lesson_id': lesson_id,
+                     'room_id': room_id,
+                     'subject_id': subject_id,
+                     'teacher_id': teacher_id,
+                     'start_hour': start_hour,
+                     'end_hour': end_hour,
+                     'day': day})
     print('ID\tSala\tZajecia\tNauczyciel\tGodziny\tDzien')
     for item in sorted(data, key=lambda i: i['subject_id']):
-        print('>' + str(item['lesson_id']) +'\t'+ str(item['room_id'])
-        +'\t'+ item['subject_id']+'\t'+ str(item['teacher_id'])+'\t'+ item['start_hour']+'-'+item['end_hour']+'\t'+str(item['day']))
+        print('>' + str(item['lesson_id']) + '\t' + str(item['room_id'])
+              + '\t' + item['subject_id'] + '\t' + str(item['teacher_id']) + '\t' + item['start_hour'] + '-' + item[
+                  'end_hour'] + '\t' + str(item['day']))
     lesson_id = input('Podaj id lekcji : ')
-
-
 
     sql = """
             Insert into PLAN_LEKCJI(ID_LEKCJI, ID_KLASY, ID_BLOKU) values (PLAN_LEKCJI_SEQ.NEXTVAL, :class_id, :lesson_id)
             """
-    
-
 
     cursor.execute(sql, [class_id, lesson_id])
     connection().commit()

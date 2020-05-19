@@ -100,7 +100,7 @@ def showUserData(user_id):
     print('Wiek:\t\t' + str(user['age']))
     print('Typ:\t\t' + user['user_type'])
     print('ID klasy:\t' + str(user['id_class']))
-    print('Numer telefonu:\t' + user['number'])
+    print('Nr telefonu:\t' + user['number'])
     print('Email:\t\t' + user['email'])
 
 
