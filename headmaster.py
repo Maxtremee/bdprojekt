@@ -1,3 +1,5 @@
+import os
+
 import grades
 import messages
 import user
@@ -5,10 +7,10 @@ from connection import connection
 
 
 def headmaster_menu(headmaster_id):
-    user.showUserData(headmaster_id)
     while True:
-        print('1. Wyswietl uzytkownikow')
-        print('2. Dodaj nowego uzytkownika')
+        os.system('cls')
+        user.showUserData(headmaster_id)
+        print('1. Uzytkownicy')
         print('3. Dodaj nowa klase')
         print('4. Dodaj nowa lekcje')
         print('5. Dodaj lekcje klasie')
@@ -20,11 +22,7 @@ def headmaster_menu(headmaster_id):
         print('0. Powrot')
         choice = input('Wybierz : ')
         if choice == '1':
-            user_id = user.getUsers()
-            user.modifyUser(user_id)
-            messages.hold()
-        if choice == '2':
-            user.addNewUser()
+            user.user_action_menu()
             messages.hold()
         if choice == '3':
             addClass()

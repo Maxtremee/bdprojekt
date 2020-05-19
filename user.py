@@ -11,6 +11,27 @@ def hold():
     os.system('cls')
 
 
+def user_action_menu():
+    os.system('cls')
+    print('1. Dodaj nowego uzytkownika')
+    print('2. Modyfikuj dane uzytkownika')
+    print('3. Usun uzytkownika')
+    print('0. Powrot')
+    choice = input('Wybierz : ')
+    if choice == '2':
+        user_id = getUsers()
+        modifyUser(user_id)
+        hold()
+    if choice == '1':
+        addNewUser()
+        hold()
+    if choice == '3':
+        user_id = getUsers()
+        removeUser(user_id)
+    if choice == '0':
+        pass
+
+
 def change_userdata_menu():
     print('1. Zmien imie')
     print('2. Zmien nazwisko')
@@ -362,3 +383,22 @@ def addNewUser():
     cursor.execute(sql, [classId, userType, firstName, lastName, age, phoneNr, email])
     connection().commit()
     print('Dodano uzytkownika')
+
+
+def removeUser(user_id):
+    os.system('cls')
+    cursor = connection().cursor()
+
+    sql = """
+    DELETE FROM UZYTKOWNIK
+    WHERE id_uzytkownika = :user_id
+    """
+    try:
+        cursor.execute(sql, [user_id])
+        print('Pomyslnie usunieto uzytkownika')
+        connection().commit()
+    except:
+        print('Blad w usuwaniu uzytkownika')
+    finally:
+        cursor.close()
+        connection().close()
