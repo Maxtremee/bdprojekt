@@ -285,8 +285,6 @@ def addClass():
     if classCode in cursor:
         classCode = input('Podaj rozniacy sie kod klasy : ')
     print('Istniejace profile klas : ')
-
-    print('Istniejace kody klas')
     sql = """
             SELECT DISTINCT
             profil "spec"
@@ -362,8 +360,69 @@ def removeClass():
 
 
 def removeLesson():
-    # TODO: add function
-    pass
+    cursor = connection().cursor()
+    print('Klasy :')
+    sql = """
+            SELECT DISTINCT
+            id_klasy "class_id",
+            stopien "classCode"
+            FROM klasa
+            """
+    cursor.execute(sql)
+    data = []
+    for class_id, classCode in cursor:
+        data.append({'class_id':class_id, 'classCode':classCode})
+    print('ID\tKlasa')
+    for item in sorted(data, key=lambda i: (int(i['classCode'][0]), i['classCode'][0])):
+        print('>' + str(item['class_id']) + '\t' + item['classCode'])
+    class_id = int(input('Podaj id klasy : '))
+
+    
+
+    print('Mozliwe lekcje do usuniecia :')
+    sql = """
+            SELECT DISTINCT
+            pl.id_bloku "lesson_id",
+            id_sali "room_id",
+            id_przedmiotu "subject_id",
+            id_nauczyciela "teacher_id",
+            godzina_rozpoczecia "start_hour",
+            godzina_zakonczenia "end_hour",
+            dzien "day"
+            FROM blok_zajeciowy bz
+            JOIN plan_lekcji pl ON pl.id_bloku = bz.id_bloku
+            WHERE id_klasy = :class_id
+            """
+    cursor.execute(sql, [class_id])
+    data = []
+    for lesson_id, room_id, subject_id, teacher_id, start_hour, end_hour, day in cursor:
+        data.append({'lesson_id': lesson_id,
+                     'room_id': room_id,
+                     'subject_id': subject_id,
+                     'teacher_id': teacher_id,
+                     'start_hour': start_hour.split(':'),
+                     'end_hour': end_hour,
+                     'day': day})
+    print('ID\tSala\tZajecia\tNauczyciel\tGodziny\t\tDzien')
+    for item in sorted(data, key=lambda i: (int(i['start_hour'][0]), int(i['start_hour'][1]))):
+        item['start_hour'] = item['start_hour'][0]+':'+item['start_hour'][1]
+        print('>' + str(item['lesson_id']) + '\t' + str(item['room_id'])
+              + '\t' + item['subject_id'] + '\t' + str(item['teacher_id']) + '\t\t' + item['start_hour'] + '-' + item[
+                  'end_hour'] + '\t' + str(item['day']))
+    lesson_id = int(input('Podaj id lekcji : '))
+
+    sql = """
+        DELETE FROM plan_lekcji
+        WHERE id_klasy = :class_id
+        AND id_bloku = :lesson_id
+        """
+    try:
+        cursor.execute(sql,[class_id,lesson_id])
+    except:
+        print('Wystapil blad')
+
+    connection().commit()
+
 
 
 def addNewLesson():
@@ -409,7 +468,11 @@ def addNewLesson():
             FROM uzytkownik
             WHERE uzytkownik.typ_uzytkownika = 'nauczyciel'
             """
-    cursor.execute(sql)
+    try:
+        cursor.execute(sql)
+    except:
+        print('Wystapil blad')
+    
     data = []
     for user_id, name, surname in cursor:
         data.append({'user_id': user_id, 'name': name, 'surname': surname})
@@ -441,8 +504,11 @@ def addNewLesson():
             GODZINA_ROZPOCZECIA, GODZINA_ZAKONCZENIA, DZIEN)
             values (BLOK_ZAJECIOWY_SEQ.NEXTVAL, :room_id, :subject_id, :teacher_id, :start_hour, :end_hour, :day)
             """
-
-    cursor.execute(sql, [room_id, subject_id, teacher_id, start_hour, end_hour, day])
+    try:
+        cursor.execute(sql, [room_id, subject_id, teacher_id, start_hour, end_hour, day])
+    except:
+        print('Wystapil blad')
+    
     connection().commit()
     print('Dodano lekcje')
 
@@ -457,7 +523,11 @@ def assignLessonToClass():
             profil "spec"
             FROM klasa
             """
-    cursor.execute(sql)
+    
+    try:
+        cursor.execute(sql)
+    except:
+        print('Wystapil blad')
     data = []
     for class_id, classCode, spec in cursor:
         data.append({'class_id': class_id, 'classCode': classCode, 'spec': spec})
@@ -469,7 +539,7 @@ def assignLessonToClass():
     print('Mozliwe lekcje do przypisania :')
     sql = """
             SELECT DISTINCT
-            id_bloku "lesson_id",
+            pl.id_bloku "lesson_id",
             id_sali "room_id",
             id_przedmiotu "subject_id",
             id_nauczyciela "teacher_id",
@@ -480,7 +550,10 @@ def assignLessonToClass():
             JOIN plan_lekcji pl ON pl.id_bloku = bz.id_bloku
             WHERE id_klasy != :class_id
             """
-    cursor.execute(sql, [class_id])
+    try:
+        cursor.execute(sql, [class_id])
+    except:
+        print('Wystapil blad')
     data = []
     for lesson_id, room_id, subject_id, teacher_id, start_hour, end_hour, day in cursor:
         data.append({'lesson_id': lesson_id,
