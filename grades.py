@@ -40,11 +40,17 @@ def grades_menu():
         if choice == '4':
             break
         if choice == '1':
-            index = int(input('Wybierz indeks oceny: '))
-            edit_grade_menu(data[index], data[index]['grade_id'])
+            if(len(data)>0):
+                index = int(input('Wybierz indeks oceny: '))
+                edit_grade_menu(data[index], data[index]['grade_id'])
+            else:
+                print('Brak ocen do edycji')    
         if choice == '2':
-            index = int(input('Wybierz indeks oceny: '))
-            deleteGrade(data[index]['grade_id'])
+            if(len(data)>0):
+                index = int(input('Wybierz indeks oceny: '))
+                deleteGrade(data[index]['grade_id'])
+            else:
+                print('Brak ocen do usunięcia')
             hold()
         if choice == '3':
             addGrade()
@@ -103,6 +109,8 @@ def addGrade():
             name = firstName + lastName[3] + '.'
         print(str(id) + '\t' + name + '\t' + str(code) + '\t')
     userId = int(input('Wprowadz id uzytkownika z powyzszych mozliwych : '))
+
+   
     grade = int(input('Podaj ocene: '))
     description = input('Podaj opis: ')
 

@@ -50,15 +50,21 @@ def teacher_grade_menu(data, teacher_id):
         if choice == '4':
             break
         if choice == '1':
-            index = int(input('Podaj indeks oceny do edycji: '))
-            grades.edit_grade_menu(data[index], data[index]['grade_id'])
+            if len(data)>0:
+                index = int(input('Podaj indeks oceny do edycji: '))
+                grades.edit_grade_menu(data[index], data[index]['grade_id'])
+            else:
+                print('Nie ma ocen do edycji')
             messages.hold()
         if choice == '2':
             addGrade(teacher_id)
             messages.hold()
         if choice == '3':
-            index = int(input('Podaj indeks oceny do usunieca: '))
-            deleteGrade(data[index]['grade_id'])
+            if len(data)>0:
+                index = int(input('Podaj indeks oceny do usunieca: '))
+                deleteGrade(data[index]['grade_id'])
+            else:
+                print('Nie ma ocen do usunięcia')
             messages.hold()
         else:
             print("Niepoprawny wybor...")
@@ -82,10 +88,37 @@ def addGrade(teacher_id):
         print(str(id) + '\t' + str(name[:14]) + '.\t' + str(lvl) + '\t')
     subjectCode = input('Wprowadz kod przedmiotu (1 kolumna) : ')
 
-    students = printTeacherStudents(teacher_id)
-    index = int(input('Wprowadz index uzytkownika : '))
+    condition = True
+    while condition:
+        subjectCode = input('Wprowadz kod przedmiotu (1 kolumna) : ')
+        try:
+            assert subjectCode != id
+            condition = False
+        except ValueError:
+            print('Indeks musi być liczbą')
+        except IndexError:
+            print('Nie ma takiego indeksu')
+        except AssertionError:
+            print('Nie ma takiego indeksu')
 
-    studentId = students[index]['id']
+    students = printTeacherStudents(teacher_id)
+
+    condition = True
+    while condition:
+        index = input('Wybierz indeks ucznia : ')
+        try:
+            index = int(index)
+            studentId = students[index]['id']
+            assert index>=0
+            condition = False
+        except ValueError:
+            print('Indeks musi być liczbą')
+        except IndexError:
+            print('Nie ma takiego indeksu')
+        except AssertionError:
+            print('Nie ma takiego indeksu')
+
+
     cursor = connection().cursor()
     grade = int(input('Podaj ocene: '))
     description = input('Podaj opis: ')
