@@ -62,8 +62,24 @@ def getStudents():
         print(str(i) + '  > ' + str(id) + '  ' + str(name))
         i += 1
         data.append({'id': id, 'name': name})
-    student_index = int(input('Wybierz indeks ucznia : '))
-    student = data[student_index]
+    
+    
+    condition = True
+    while condition:
+        student_index = input('Wybierz indeks ucznia : ')
+        try:
+            student_index = int(student_index)
+            student = data[student_index]
+            assert student_index>=0
+            condition = False
+        except ValueError:
+            print('Indeks musi być liczbą')
+        except IndexError:
+            print('Nie ma takiego indeksu')
+        except AssertionError:
+            print('Nie ma takiego indeksu')
+
+    
     print("wybrany student : " + student['name'])
     hold()
     cursor.close()

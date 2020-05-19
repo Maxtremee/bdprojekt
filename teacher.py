@@ -176,8 +176,21 @@ def getTeachers():
         data.append({'id': id, 'name': name})
         i += 1
 
-    teacher_index = int(input('Wybierz indeks nauczyciela : '))
-    teacher = data[teacher_index]
+
+    condition = True
+    while condition:
+        teacher_index = input('Wybierz indeks nauczyciela : ')
+        try:
+            teacher_index = int(teacher_index)
+            teacher = data[teacher_index]
+            assert teacher_index >=0
+            condition = False
+        except ValueError:
+            print('Indeks musi być liczbą')
+        except IndexError:
+            print('Nie ma takiego indeksu')
+        except AssertionError:
+            print('Nie ma takiego indeksu')
 
     print("wybrany nauczyciel : " + teacher['name'])
 

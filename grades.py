@@ -84,6 +84,7 @@ def addGrade():
     cursor.execute(sql)
     for id, name, lvl in cursor:
         print(str(id) + '\t' + str(name[:14]) + '.\t' + str(lvl) + '\t')
+    
     subjectCode = input('Wprowadz kod przedmiotu (1 kolumna) : ')
 
     sql = """

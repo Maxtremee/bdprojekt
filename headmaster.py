@@ -63,8 +63,21 @@ def getHeadMasters():
         data.append({'id': id, 'name': name})
         i += 1
 
-    headmaster_index = int(input('Wybierz indeks dyrektora : '))
-    headmaster = data[headmaster_index]
+    condition = True
+    while condition:
+        headmaster_index = input('Wybierz indeks dyrektor : ')
+        try:
+            headmaster_index = int(headmaster_index)
+            headmaster = data[headmaster_index]
+            assert headmaster_index >=0
+            condition = False
+        except ValueError:
+            print('Indeks musi być liczbą')
+        except IndexError:
+            print('Nie ma takiego indeksu')
+        except AssertionError:
+            print('Nie ma takiego indeksu')
+
 
     print("Wybrany dyrektor : " + headmaster['name'])
 
