@@ -230,6 +230,7 @@ def printMessages():
             FROM korespondencja k
             JOIN uzytkownik u1 ON u1.id_uzytkownika = k.id_nadawcy
             JOIN uzytkownik u2 ON u2.id_uzytkownika = k.id_odbiorcy
+            ORDER BY k.czas DESC
             """
     cursor.execute(sql)
     data = []
@@ -350,16 +351,20 @@ def addNewLesson():
     if end_hour not in end_hours:
         end_hour = input('Wybierz poprawna godzine zakonczenia : ')
 
+    days = ['poniedzialek', 'wtorek', 'sroda', 'czwartek', 'piatek']
+    day = input('Podaj dzien w ktorym odbeda sie zajecia :')
+    if day not in days:
+        day = input('Podaj poprawny dzien :')
 
     sql = """
             Insert into BLOK_ZAJECIOWY(ID_BLOKU, ID_SALI, ID_PRZEDMIOTU, ID_NAUCZYCIELA,
             GODZINA_ROZPOCZECIA, GODZINA_ZAKONCZENIA, DZIEN)
-            values (BLOK_ZAJECIOWY_SEQ.NEXTVAL, :room_id, :subject_id, :teacher_id, :start_hour, :end_hour, to_date('20/09/15', 'RR/MM/DD'))
+            values (BLOK_ZAJECIOWY_SEQ.NEXTVAL, :room_id, :subject_id, :teacher_id, :start_hour, :end_hour, :day)
             """
     
 
 
-    cursor.execute(sql, [room_id, subject_id, teacher_id, start_hour, end_hour])
+    cursor.execute(sql, [room_id, subject_id, teacher_id, start_hour, end_hour, day])
     connection().commit()
     print('Dodano lekcje')
 
@@ -394,9 +399,11 @@ def assignLessonToClass():
             godzina_rozpoczecia "start_hour",
             godzina_zakonczenia "end_hour",
             dzien "day"
-            FROM blok_zajeciowy
+            FROM blok_zajeciowy bz
+            JOIN plan_lekcji pl ON pl.id_bloku = bz.id_bloku
+            WHERE id_klasy != :class_id
             """
-    cursor.execute(sql)
+    cursor.execute(sql,[class_id])
     data = []
     for lesson_id, room_id, subject_id, teacher_id, start_hour, end_hour, day in cursor:
         data.append({'lesson_id':lesson_id,
