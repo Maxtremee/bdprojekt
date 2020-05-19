@@ -459,7 +459,7 @@ def addNewLesson():
         print('>' + str(item['subject_id']) + '\t' + item['name'])
     subject_id = input('Podaj id przedmiotu : ')
 
-    print('Mozliwe przedmioty :')
+    print('Mozliwi nauczyciele :')
     sql = """
             SELECT DISTINCT
             id_uzytkownika "user_id",
@@ -498,7 +498,7 @@ def addNewLesson():
     day = input('Podaj dzien w ktorym odbeda sie zajecia :')
     if day not in days:
         day = input('Podaj poprawny dzien :')
-
+    day = day.upper()
     sql = """
             Insert into BLOK_ZAJECIOWY(ID_BLOKU, ID_SALI, ID_PRZEDMIOTU, ID_NAUCZYCIELA,
             GODZINA_ROZPOCZECIA, GODZINA_ZAKONCZENIA, DZIEN)
@@ -513,6 +513,34 @@ def addNewLesson():
     print('Dodano lekcje')
 
 
+def getClassScheduleForGivenDay(class_id, day):
+    cursor = connection().cursor()
+    sql = """
+            SELECT DISTINCT
+            bz.id_bloku "lesson_id",
+            id_sali "room_id",
+            id_przedmiotu "subject_id",
+            id_nauczyciela "teacher_id",
+            godzina_rozpoczecia "start_hour",
+            godzina_zakonczenia "end_hour",
+            dzien "day"
+            FROM blok_zajeciowy bz
+            JOIN plan_lekcji pl ON pl.id_bloku = bz.id_bloku
+            WHERE id_klasy = :class_id
+            AND dzien = :day
+            """
+    cursor.execute(sql, [class_id, day])
+    data = []
+    for lesson_id, room_id, subject_id, teacher_id, start_hour, end_hour, day in cursor:
+        data.append({'lesson_id': lesson_id,
+                    'room_id': room_id,
+                    'subject_id': subject_id,
+                    'teacher_id': teacher_id,
+                    'start_hour': start_hour,
+                    'end_hour': end_hour,
+                    'day': day})
+    return data
+
 def assignLessonToClass():
     cursor = connection().cursor()
     print('Mozliwe klasy :')
@@ -523,7 +551,6 @@ def assignLessonToClass():
             profil "spec"
             FROM klasa
             """
-    
     try:
         cursor.execute(sql)
     except:
@@ -536,33 +563,50 @@ def assignLessonToClass():
         print('>' + str(item['class_id']) + '\t' + item['classCode'] + '\t' + item['spec'])
     class_id = int(input('Podaj id klasy : '))
 
-    print('Mozliwe lekcje do przypisania :')
-    sql = """
-            SELECT DISTINCT
-            pl.id_bloku "lesson_id",
-            id_sali "room_id",
-            id_przedmiotu "subject_id",
-            id_nauczyciela "teacher_id",
-            godzina_rozpoczecia "start_hour",
-            godzina_zakonczenia "end_hour",
-            dzien "day"
-            FROM blok_zajeciowy bz
-            JOIN plan_lekcji pl ON pl.id_bloku = bz.id_bloku
-            WHERE id_klasy != :class_id
-            """
-    try:
-        cursor.execute(sql, [class_id])
-    except:
-        print('Wystapil blad')
+    day = input('Podaj dzien : ').upper()
+
+    data = getClassScheduleForGivenDay(class_id, day)
+
+    start_time = []
+    if data is not None: 
+        for lesson in data:
+            start_time.append(lesson['start_hour'])
+    all_possible_hours = ['8:00', '8:55', '9:45', '10:45', '11:40', '12:35', '13:30']
+    for item in start_time:
+        if item in all_possible_hours:
+            all_possible_hours.remove(item)
+    print('Mozliwe godziny : ',end='')
+    print(all_possible_hours)
+
     data = []
-    for lesson_id, room_id, subject_id, teacher_id, start_hour, end_hour, day in cursor:
-        data.append({'lesson_id': lesson_id,
-                     'room_id': room_id,
-                     'subject_id': subject_id,
-                     'teacher_id': teacher_id,
-                     'start_hour': start_hour,
-                     'end_hour': end_hour,
-                     'day': day})
+    for beg_hour in all_possible_hours:
+        sql = """
+                SELECT DISTINCT
+                bz.id_bloku "lesson_id",
+                id_sali "room_id",
+                id_przedmiotu "subject_id",
+                id_nauczyciela "teacher_id",
+                godzina_rozpoczecia "start_hour",
+                godzina_zakonczenia "end_hour",
+                dzien "day"
+                FROM blok_zajeciowy bz
+                WHERE godzina_rozpoczecia = :beg_hour
+                AND bz.id_bloku NOT IN (SELECT id_bloku FROM plan_lekcji)
+                """
+        cursor.execute(sql, [beg_hour])
+        for lesson_id, room_id, subject_id, teacher_id, start_hour, end_hour, day in cursor:
+            data.append({'lesson_id': lesson_id,
+                        'room_id': room_id,
+                        'subject_id': subject_id,
+                        'teacher_id': teacher_id,
+                        'start_hour': start_hour,
+                        'end_hour': end_hour,
+                        'day': day})
+    if len(data) == 0:
+        print('Brak zajec do przypisania')
+        input('Wcisnij przycisk zeby kontynuowac')
+        return
+    print('Mozliwe lekcje do przypisania :')
     print('ID\tSala\tZajecia\tNauczyciel\tGodziny\tDzien')
     for item in sorted(data, key=lambda i: i['subject_id']):
         print('>' + str(item['lesson_id']) + '\t' + str(item['room_id'])
